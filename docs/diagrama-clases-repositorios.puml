@@ -1,0 +1,69 @@
+@startuml diagrama-clases-repositorios
+' Métodos de CrudRepository y JpaRepository (Spring Data JPA 4.1.1) y su relación con CursoRepository.
+' Los genéricos <S> se escriben ~<S> porque PlantUML interpreta <s> como tachado.
+
+title CursoRepository, JpaRepository y CrudRepository
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam defaultFontName Helvetica
+skinparam defaultFontColor #263238
+skinparam backgroundColor #FFFFFF
+skinparam titleFontSize 16
+skinparam titleFontColor #37474F
+skinparam ArrowColor #546E7A
+skinparam ArrowThickness 1.2
+skinparam ArrowFontColor #546E7A
+skinparam ArrowFontSize 11
+
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #546E7A
+  BorderThickness 1.2
+  HeaderBackgroundColor #ECEFF1
+  FontColor #263238
+  AttributeFontColor #37474F
+  AttributeFontSize 12
+}
+
+skinparam circledCharacter {
+  FontColor #FFFFFF
+}
+skinparam stereotypeIBackgroundColor #3F51B5
+
+hide empty members
+
+interface "CrudRepository<T, ID>" as CrudRepository {
+  + <b><S extends T> save(S entity) : S</b>
+  + <S extends T> saveAll(Iterable~<S> entities) : Iterable~<S>
+  + <b>findById(ID id) : Optional<T></b>
+  + existsById(ID id) : boolean
+  + <b>findAll() : Iterable<T></b>
+  + findAllById(Iterable<ID> ids) : Iterable<T>
+  + count() : long
+  + deleteById(ID id) : void
+  + <b>delete(T entity) : void</b>
+  + deleteAllById(Iterable<? extends ID> ids) : void
+  + deleteAll(Iterable<? extends T> entities) : void
+  + deleteAll() : void
+}
+
+interface "JpaRepository<T, ID>" as JpaRepository {
+  + flush() : void
+  + <S extends T> saveAndFlush(S entity) : S
+  + <S extends T> saveAllAndFlush(Iterable~<S> entities) : List~<S>
+  + deleteAllInBatch(Iterable<T> entities) : void
+  + deleteAllByIdInBatch(Iterable<ID> ids) : void
+  + deleteAllInBatch() : void
+  + getReferenceById(ID id) : T
+  + <S extends T> findAll(Example~<S> example) : List~<S>
+  + <S extends T> findAll(Example~<S> example, Sort sort) : List~<S>
+}
+
+interface CursoRepository
+
+CrudRepository <|-- JpaRepository : vía ListCrudRepository
+JpaRepository <|-- CursoRepository : <<bind>> T = Curso, ID = Long
+
+@enduml
