@@ -134,4 +134,32 @@ class CursoControllerTest {
 
 		verify(cursoService, never()).guardar(any());
 	}
+
+	@Test
+	void crearConTituloVacioVuelveAlFormularioSinGuardar() throws Exception {
+		mockMvc.perform(post("/cursos")
+				.param("titulo", "   ")
+				.param("autor", "Cecilio")
+				.param("precio", "100"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("cursos/formulario"))
+				.andExpect(model().attributeHasFieldErrorCode("curso", "titulo", "NotBlank"))
+				.andExpect(content().string(containsString("El título es obligatorio")));
+
+		verify(cursoService, never()).guardar(any());
+	}
+
+	@Test
+	void crearConAutorVacioVuelveAlFormularioSinGuardar() throws Exception {
+		mockMvc.perform(post("/cursos")
+				.param("titulo", "Java")
+				.param("autor", "")
+				.param("precio", "100"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("cursos/formulario"))
+				.andExpect(model().attributeHasFieldErrorCode("curso", "autor", "NotBlank"))
+				.andExpect(content().string(containsString("El autor es obligatorio")));
+
+		verify(cursoService, never()).guardar(any());
+	}
 }

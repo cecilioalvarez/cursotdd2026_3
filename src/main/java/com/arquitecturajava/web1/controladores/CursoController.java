@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.arquitecturajava.web1.negocio.Curso;
 import com.arquitecturajava.web1.servicios.CursoService;
 
+import jakarta.validation.Valid;
+
 @Controller
 @RequestMapping("/cursos")
 public class CursoController {
@@ -42,7 +44,7 @@ public class CursoController {
 	}
 
 	@PostMapping
-	public String crear(@ModelAttribute("curso") Curso curso, BindingResult resultado) {
+	public String crear(@Valid @ModelAttribute("curso") Curso curso, BindingResult resultado) {
 		if (resultado.hasErrors()) {
 			return "cursos/formulario";
 		}
