@@ -1,0 +1,90 @@
+@startuml diagrama-secuencia-listar-cursos
+' Flujo para listar todos los cursos: desde la petición del navegador hasta el repositorio
+' y la vuelta con la vista Thymeleaf cursos/lista.html.
+
+title Listar todos los cursos
+
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam defaultFontName Helvetica
+skinparam defaultFontColor #263238
+skinparam backgroundColor #FFFFFF
+skinparam titleFontSize 16
+skinparam titleFontColor #37474F
+skinparam ArrowColor #546E7A
+skinparam ArrowThickness 1.2
+skinparam ArrowFontColor #37474F
+skinparam ArrowFontSize 12
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 220
+
+skinparam sequence {
+  ParticipantBackgroundColor #ECEFF1
+  ParticipantBorderColor #546E7A
+  ParticipantBorderThickness 1.2
+  ParticipantFontColor #263238
+  ActorBackgroundColor #ECEFF1
+  ActorBorderColor #546E7A
+  DatabaseBackgroundColor #ECEFF1
+  DatabaseBorderColor #546E7A
+  LifeLineBorderColor #90A4AE
+  LifeLineBackgroundColor #E8EAF6
+  BoxBorderColor #B0BEC5
+  GroupBorderColor #90A4AE
+  GroupBackgroundColor #ECEFF1
+}
+
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #90A4AE
+  FontColor #37474F
+}
+
+hide footbox
+autonumber "<b>0."
+
+actor Usuario
+participant Navegador
+participant CursoController
+participant CursoRepository
+participant "lista.html\n(Thymeleaf)" as Vista
+database "BD H2" as BD
+
+Usuario -> Navegador : abre el listado de cursos
+activate Navegador
+
+Navegador -> CursoController : GET /cursos
+activate CursoController
+
+CursoController -> CursoRepository : <b>findAll()</b>
+activate CursoRepository
+
+CursoRepository -> BD : SELECT * FROM curso
+activate BD
+BD --> CursoRepository : filas de curso
+deactivate BD
+
+CursoRepository --> CursoController : List<Curso>
+deactivate CursoRepository
+
+CursoController -> CursoController : model.addAttribute("cursos", cursos)
+
+CursoController -> Vista : return "cursos/lista"
+activate Vista
+Vista -> Vista : recorre ${cursos} con th:each
+Vista --> CursoController : HTML generado
+deactivate Vista
+
+CursoController --> Navegador : 200 OK (HTML)
+deactivate CursoController
+
+Navegador --> Usuario : muestra la tabla de cursos
+deactivate Navegador
+
+note over CursoRepository, BD
+  CursoRepository no tiene implementación escrita:
+  Spring Data genera la consulta a partir de findAll()
+  (SimpleJpaRepository + Hibernate).
+end note
+
+@enduml

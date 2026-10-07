@@ -1,0 +1,63 @@
+@startuml diagrama-paquetes
+' Paquetes de la aplicación web1 y sus dependencias (sacadas de los import de cada clase).
+
+title Paquetes de la aplicación web1
+
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam defaultFontName Helvetica
+skinparam defaultFontColor #263238
+skinparam backgroundColor #FFFFFF
+skinparam titleFontSize 16
+skinparam titleFontColor #37474F
+skinparam ArrowColor #546E7A
+skinparam ArrowThickness 1.2
+skinparam ArrowFontColor #546E7A
+skinparam ArrowFontSize 11
+skinparam packageStyle folder
+skinparam classAttributeIconSize 0
+
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #546E7A
+  BorderThickness 1.2
+  FontColor #263238
+}
+
+skinparam class {
+  BackgroundColor #ECEFF1
+  BorderColor #546E7A
+  BorderThickness 1
+  FontColor #263238
+}
+
+hide empty members
+hide circle
+
+package "com.arquitecturajava.web1" as web1 {
+
+  class Web1Application <<@SpringBootApplication>>
+
+  package controladores {
+    class CursoController <<@Controller>>
+  }
+
+  package servicios {
+    class CursoService <<@Service>>
+  }
+
+  package repositorios {
+    class CursoRepository <<interface>>
+  }
+
+  package negocio {
+    class Curso <<@Entity>>
+  }
+}
+
+controladores ..> servicios : <<use>>
+servicios ..> repositorios : <<use>>
+servicios ..> negocio : <<use>>
+repositorios ..> negocio : <<use>>
+
+@enduml
