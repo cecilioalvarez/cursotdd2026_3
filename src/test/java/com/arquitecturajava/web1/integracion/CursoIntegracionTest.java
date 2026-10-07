@@ -103,4 +103,53 @@ class CursoIntegracionTest {
 				.andExpect(content().string(containsString("Kotlin")))
 				.andExpect(content().string(containsString("242,00 €")));
 	}
+
+	@Test
+	void editarCursoDesdeElFormularioLoActualizaEnLaBaseDeDatos() throws Exception {
+		Curso curso = cursoRepository.save(new Curso("Java", "Cecilio", 100));
+
+		mockMvc.perform(get("/cursos/{id}/editar", curso.getId()))
+				.andExpect(status().isOk())
+				.andExpect(content().string(containsString("value=\"Java\"")));
+
+		mockMvc.perform(post("/cursos/{id}", curso.getId())
+				.param("titulo", "Java avanzado")
+				.param("autor", "Ana")
+				.param("precio", "150"))
+				.andExpect(redirectedUrl("/cursos"));
+
+		assertThat(cursoRepository.findAll())
+				.singleElement()
+				.satisfies(actualizado -> {
+					assertThat(actualizado.getId()).isEqualTo(curso.getId());
+					assertThat(actualizado.getTitulo()).isEqualTo("Java avanzado");
+					assertThat(actualizado.getAutor()).isEqualTo("Ana");
+					assertThat(actualizado.getPrecio()).isEqualTo(150);
+				});
+
+		mockMvc.perform(get("/cursos"))
+				.andExpect(content().string(containsString("Java avanzado")))
+				.andExpect(content().string(containsString("181,50 €")));
+	}
+
+	@Test
+	void editarCursoInexistenteDevuelve404() throws Exception {
+		mockMvc.perform(get("/cursos/999/editar"))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void borrarCursoDesdeElListadoLoEliminaDeLaBaseDeDatos() throws Exception {
+		Curso java = cursoRepository.save(new Curso("Java", "Cecilio", 100));
+		Curso spring = cursoRepository.save(new Curso("Spring", "Ana", 50));
+
+		mockMvc.perform(post("/cursos/{id}/borrar", spring.getId()))
+				.andExpect(redirectedUrl("/cursos"));
+
+		assertThat(cursoRepository.findAll()).containsExactly(java);
+
+		mockMvc.perform(get("/cursos"))
+				.andExpect(content().string(containsString("Java")))
+				.andExpect(content().string(not(containsString("Spring"))));
+	}
 }

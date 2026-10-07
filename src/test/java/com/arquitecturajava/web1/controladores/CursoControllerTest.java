@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -161,5 +162,92 @@ class CursoControllerTest {
 				.andExpect(content().string(containsString("El autor es obligatorio")));
 
 		verify(cursoService, never()).guardar(any());
+	}
+
+	@Test
+	void formularioEditarMuestraElCursoExistente() throws Exception {
+		Curso curso = new Curso(1L, "Java", "Cecilio", 100);
+		when(cursoService.buscarPorId(1L)).thenReturn(Optional.of(curso));
+
+		mockMvc.perform(get("/cursos/1/editar"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("cursos/formulario"))
+				.andExpect(model().attribute("curso", curso))
+				.andExpect(content().string(containsString("Editar curso")))
+				.andExpect(content().string(containsString("action=\"/cursos/1\"")))
+				.andExpect(content().string(containsString("value=\"Java\"")));
+	}
+
+	@Test
+	void formularioEditarCursoInexistenteDevuelve404() throws Exception {
+		when(cursoService.buscarPorId(999L)).thenReturn(Optional.empty());
+
+		mockMvc.perform(get("/cursos/999/editar"))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void actualizarGuardaElCursoConElIdDeLaUrlYRedirige() throws Exception {
+		when(cursoService.buscarPorId(1L)).thenReturn(Optional.of(new Curso(1L, "Java", "Cecilio", 100)));
+
+		mockMvc.perform(post("/cursos/1")
+				.param("id", "2")
+				.param("titulo", "Java avanzado")
+				.param("autor", "Cecilio")
+				.param("precio", "150"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/cursos"));
+
+		verify(cursoService).guardar(argThat(curso -> curso.getId() == 1L
+				&& curso.getTitulo().equals("Java avanzado")
+				&& curso.getAutor().equals("Cecilio")
+				&& curso.getPrecio() == 150));
+	}
+
+	@Test
+	void actualizarConErroresVuelveAlFormularioDeEdicionSinGuardar() throws Exception {
+		when(cursoService.buscarPorId(1L)).thenReturn(Optional.of(new Curso(1L, "Java", "Cecilio", 100)));
+
+		mockMvc.perform(post("/cursos/1")
+				.param("titulo", "")
+				.param("autor", "Cecilio")
+				.param("precio", "100"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("cursos/formulario"))
+				.andExpect(model().attributeHasFieldErrorCode("curso", "titulo", "NotBlank"))
+				.andExpect(content().string(containsString("action=\"/cursos/1\"")));
+
+		verify(cursoService, never()).guardar(any());
+	}
+
+	@Test
+	void actualizarCursoInexistenteDevuelve404SinGuardar() throws Exception {
+		when(cursoService.buscarPorId(999L)).thenReturn(Optional.empty());
+
+		mockMvc.perform(post("/cursos/999")
+				.param("titulo", "Java")
+				.param("autor", "Cecilio")
+				.param("precio", "100"))
+				.andExpect(status().isNotFound());
+
+		verify(cursoService, never()).guardar(any());
+	}
+
+	@Test
+	void borrarEliminaElCursoYRedirigeAlListado() throws Exception {
+		mockMvc.perform(post("/cursos/1/borrar"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/cursos"));
+
+		verify(cursoService).borrar(1L);
+	}
+
+	@Test
+	void listarMuestraLosBotonesDeEditarYBorrar() throws Exception {
+		when(cursoService.buscarTodos()).thenReturn(List.of(new Curso(1L, "Java", "Cecilio", 100)));
+
+		mockMvc.perform(get("/cursos"))
+				.andExpect(content().string(containsString("href=\"/cursos/1/editar\"")))
+				.andExpect(content().string(containsString("action=\"/cursos/1/borrar\"")));
 	}
 }

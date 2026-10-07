@@ -25,6 +25,7 @@
 					<th>Autor</th>
 					<th class="text-end">Precio</th>
 					<th class="text-end">Precio con IVA</th>
+					<th class="text-end">Acciones</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -34,6 +35,13 @@
 					<td th:text="${curso.autor}">Cecilio</td>
 					<td class="text-end" th:text="${#numbers.formatDecimal(curso.precio, 1, 'POINT', 2, 'COMMA')} + ' €'">100,00 €</td>
 					<td class="text-end" th:text="${#numbers.formatDecimal(curso.precioConIva, 1, 'POINT', 2, 'COMMA')} + ' €'">121,00 €</td>
+					<td class="text-end text-nowrap">
+						<a th:href="@{/cursos/{id}/editar(id=${curso.id})}" class="btn btn-sm btn-outline-primary">Editar</a>
+						<form th:action="@{/cursos/{id}/borrar(id=${curso.id})}" method="post" class="d-inline"
+							onsubmit="return confirm('¿Seguro que quieres borrar este curso?');">
+							<button type="submit" class="btn btn-sm btn-outline-danger">Borrar</button>
+						</form>
+					</td>
 				</tr>
 			</tbody>
 		</table>
