@@ -8,7 +8,10 @@
 </head>
 <body>
 	<div class="container py-4">
-		<h1 class="mb-4">Listado de cursos</h1>
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<h1 class="mb-0">Listado de cursos</h1>
+			<a th:href="@{/cursos/nuevo}" class="btn btn-primary">Nuevo curso</a>
+		</div>
 
 		<div th:if="${#lists.isEmpty(cursos)}" class="alert alert-info">
 			No hay cursos.

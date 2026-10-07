@@ -1,11 +1,14 @@
 package com.arquitecturajava.web1.integracion;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -78,5 +81,26 @@ class CursoIntegracionTest {
 				.andExpect(model().attribute("cursos", hasSize(1)))
 				.andExpect(content().string(containsString("Java")))
 				.andExpect(content().string(not(containsString("Spring"))));
+	}
+
+	@Test
+	void crearCursoDesdeElFormularioLoGuardaYApareceEnElListado() throws Exception {
+		mockMvc.perform(post("/cursos")
+				.param("titulo", "Kotlin")
+				.param("autor", "Marta")
+				.param("precio", "200"))
+				.andExpect(redirectedUrl("/cursos"));
+
+		assertThat(cursoRepository.findAll())
+				.singleElement()
+				.satisfies(curso -> {
+					assertThat(curso.getTitulo()).isEqualTo("Kotlin");
+					assertThat(curso.getAutor()).isEqualTo("Marta");
+					assertThat(curso.getPrecio()).isEqualTo(200);
+				});
+
+		mockMvc.perform(get("/cursos"))
+				.andExpect(content().string(containsString("Kotlin")))
+				.andExpect(content().string(containsString("242,00 €")));
 	}
 }

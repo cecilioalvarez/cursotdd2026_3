@@ -2,11 +2,16 @@ package com.arquitecturajava.web1.controladores;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -79,5 +84,54 @@ class CursoControllerTest {
 
 		mockMvc.perform(get("/cursos"))
 				.andExpect(content().string(containsString("cdn.jsdelivr.net/npm/bootstrap")));
+	}
+
+	@Test
+	void formularioNuevoMuestraLaVistaConUnCursoVacio() throws Exception {
+		mockMvc.perform(get("/cursos/nuevo"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("cursos/formulario"))
+				.andExpect(model().attributeExists("curso"))
+				.andExpect(content().string(containsString("<form")));
+	}
+
+	@Test
+	void crearGuardaElCursoYRedirigeAlListado() throws Exception {
+		mockMvc.perform(post("/cursos")
+				.param("titulo", "Java")
+				.param("autor", "Cecilio")
+				.param("precio", "100"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/cursos"));
+
+		verify(cursoService).guardar(argThat(curso -> curso.getId() == null
+				&& curso.getTitulo().equals("Java")
+				&& curso.getAutor().equals("Cecilio")
+				&& curso.getPrecio() == 100));
+	}
+
+	@Test
+	void crearIgnoraElIdEnviadoDesdeElFormulario() throws Exception {
+		mockMvc.perform(post("/cursos")
+				.param("id", "1")
+				.param("titulo", "Java")
+				.param("autor", "Cecilio")
+				.param("precio", "100"))
+				.andExpect(redirectedUrl("/cursos"));
+
+		verify(cursoService).guardar(argThat(curso -> curso.getId() == null));
+	}
+
+	@Test
+	void crearConPrecioIncorrectoVuelveAlFormularioSinGuardar() throws Exception {
+		mockMvc.perform(post("/cursos")
+				.param("titulo", "Java")
+				.param("autor", "Cecilio")
+				.param("precio", "abc"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("cursos/formulario"))
+				.andExpect(model().attributeHasFieldErrors("curso", "precio"));
+
+		verify(cursoService, never()).guardar(any());
 	}
 }
