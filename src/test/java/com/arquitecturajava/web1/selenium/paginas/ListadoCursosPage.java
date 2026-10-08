@@ -55,6 +55,11 @@ public class ListadoCursosPage extends Pagina {
 		return new FormularioCursoPage(driver);
 	}
 
+	public ConfirmacionBorrado pulsarBorrar(Long id) {
+		driver.findElement(By.cssSelector("form[action='/cursos/" + id + "/borrar'] button")).click();
+		return new ConfirmacionBorrado(driver);
+	}
+
 	// Columnas: Id, Título, Autor, Precio, Precio con IVA, Acciones
 	private static FilaCurso leerFila(WebElement fila) {
 		List<WebElement> celdas = fila.findElements(By.tagName("td"));

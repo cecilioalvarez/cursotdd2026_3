@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.arquitecturajava.web1.negocio.Curso;
 import com.arquitecturajava.web1.repositorios.CursoRepository;
+import com.arquitecturajava.web1.selenium.paginas.ConfirmacionBorrado;
 import com.arquitecturajava.web1.selenium.paginas.DatosCurso;
 import com.arquitecturajava.web1.selenium.paginas.FilaCurso;
 import com.arquitecturajava.web1.selenium.paginas.FormularioCursoPage;
@@ -24,6 +25,7 @@ class CursoSeleniumTest extends SeleniumTestBase {
 	private static final DatosCurso CURSO_NUEVO = new DatosCurso("Selenium WebDriver", "Marta", 200);
 	private static final DatosCurso CURSO_ORIGINAL = new DatosCurso("Curso para editar", "Pedro", 100);
 	private static final DatosCurso CURSO_EDITADO = new DatosCurso("Curso editado con Selenium", "Lucía", 150);
+	private static final DatosCurso CURSO_A_BORRAR = new DatosCurso("Curso para borrar", "Rosa", 50);
 
 	@Autowired
 	private CursoRepository cursoRepository;
@@ -69,6 +71,28 @@ class CursoSeleniumTest extends SeleniumTestBase {
 		assertThat(cursoRepository.findById(curso.getId())).get()
 				.extracting(Curso::getTitulo, Curso::getAutor, Curso::getPrecio)
 				.containsExactly("Curso editado con Selenium", "Lucía", 150.0);
+	}
+
+	@Test
+	@DisplayName("Borrar un curso, tras confirmarlo, lo quita del listado")
+	void borradoDeCurso() {
+		// Dado un curso guardado
+		Curso curso = guardar(CURSO_A_BORRAR);
+		ListadoCursosPage listado = abrirListado();
+		int cursosAntes = listado.numeroDeCursos();
+
+		// Cuando el usuario pulsa "Borrar" y acepta la confirmación
+		ConfirmacionBorrado confirmacion = listado.pulsarBorrar(curso.getId());
+		assertThat(confirmacion.mensaje()).isEqualTo("¿Seguro que quieres borrar este curso?");
+		listado = confirmacion.aceptar();
+
+		// Entonces vuelve al listado sin ese curso
+		assertThat(listado.titulo()).isEqualTo(ListadoCursosPage.TITULO);
+		assertThat(listado.numeroDeCursos()).isEqualTo(cursosAntes - 1);
+		assertThat(listado.cursos())
+				.extracting(FilaCurso::titulo)
+				.doesNotContain(CURSO_A_BORRAR.titulo());
+		assertThat(cursoRepository.findById(curso.getId())).isEmpty();
 	}
 
 	private Curso guardar(DatosCurso datos) {
