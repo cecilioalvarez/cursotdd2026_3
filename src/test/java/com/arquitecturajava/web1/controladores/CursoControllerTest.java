@@ -124,6 +124,18 @@ class CursoControllerTest {
 	}
 
 	@Test
+	void crearIgnoraLasImparticionesEnviadasDesdeElFormulario() throws Exception {
+		mockMvc.perform(post("/cursos")
+				.param("titulo", "Java")
+				.param("autor", "Cecilio")
+				.param("precio", "100")
+				.param("imparticiones[0].nombre", "Colada"))
+				.andExpect(redirectedUrl("/cursos"));
+
+		verify(cursoService).guardar(argThat(curso -> curso.getImparticiones().isEmpty()));
+	}
+
+	@Test
 	void crearConPrecioIncorrectoVuelveAlFormularioSinGuardar() throws Exception {
 		mockMvc.perform(post("/cursos")
 				.param("titulo", "Java")
@@ -249,5 +261,14 @@ class CursoControllerTest {
 		mockMvc.perform(get("/cursos"))
 				.andExpect(content().string(containsString("href=\"/cursos/1/editar\"")))
 				.andExpect(content().string(containsString("action=\"/cursos/1/borrar\"")));
+	}
+
+	@Test
+	void listarMuestraElBotonDeVerImparticiones() throws Exception {
+		when(cursoService.buscarTodos()).thenReturn(List.of(new Curso(1L, "Java", "Cecilio", 100)));
+
+		mockMvc.perform(get("/cursos"))
+				.andExpect(content().string(containsString("href=\"/cursos/1/imparticiones\"")))
+				.andExpect(content().string(containsString("Ver imparticiones")));
 	}
 }
