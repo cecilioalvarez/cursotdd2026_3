@@ -1,4 +1,4 @@
-package com.arquitecturajava.web1.selenium.paginas;
+package com.arquitecturajava.web1.selenium.helpers;
 
 /**
  * Lo que el usuario escribe en el formulario de curso.

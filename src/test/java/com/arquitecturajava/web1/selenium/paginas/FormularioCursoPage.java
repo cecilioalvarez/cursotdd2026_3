@@ -6,6 +6,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
+import com.arquitecturajava.web1.selenium.helpers.DatosCurso;
+
 /**
  * Page Object del formulario de curso, el mismo para alta y edición.
  */

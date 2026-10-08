@@ -1,4 +1,4 @@
-package com.arquitecturajava.web1.selenium;
+package com.arquitecturajava.web1.selenium.helpers;
 
 import java.time.Duration;
 
@@ -34,7 +34,7 @@ public abstract class SeleniumTestBase {
 	protected WebDriver driver;
 
 	@BeforeEach
-	void abrirNavegador() {
+	protected void abrirNavegador() {
 		EdgeOptions opciones = new EdgeOptions();
 		opciones.addArguments("--window-size=1280,800");
 		if (Pagina.HEADLESS) {
@@ -45,7 +45,7 @@ public abstract class SeleniumTestBase {
 	}
 
 	@AfterEach
-	void cerrarNavegador() {
+	protected void cerrarNavegador() {
 		if (driver != null) {
 			Pagina.pausa();
 			driver.quit();

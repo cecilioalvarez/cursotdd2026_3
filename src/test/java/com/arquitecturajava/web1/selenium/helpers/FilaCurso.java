@@ -1,4 +1,4 @@
-package com.arquitecturajava.web1.selenium.paginas;
+package com.arquitecturajava.web1.selenium.helpers;
 
 /**
  * Lo que el usuario ve en una fila del listado de cursos, tal cual aparece en

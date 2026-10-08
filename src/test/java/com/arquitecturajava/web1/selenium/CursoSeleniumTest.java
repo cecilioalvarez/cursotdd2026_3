@@ -8,9 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.arquitecturajava.web1.negocio.Curso;
 import com.arquitecturajava.web1.repositorios.CursoRepository;
+import com.arquitecturajava.web1.selenium.helpers.DatosCurso;
+import com.arquitecturajava.web1.selenium.helpers.FilaCurso;
+import com.arquitecturajava.web1.selenium.helpers.SeleniumTestBase;
 import com.arquitecturajava.web1.selenium.paginas.ConfirmacionBorrado;
-import com.arquitecturajava.web1.selenium.paginas.DatosCurso;
-import com.arquitecturajava.web1.selenium.paginas.FilaCurso;
 import com.arquitecturajava.web1.selenium.paginas.FormularioCursoPage;
 import com.arquitecturajava.web1.selenium.paginas.ListadoCursosPage;
 

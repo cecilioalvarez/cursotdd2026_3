@@ -7,6 +7,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
+import com.arquitecturajava.web1.selenium.helpers.FilaCurso;
+
 /**
  * Page Object de {@code /cursos}: la tabla con el listado de cursos.
  */
@@ -53,6 +55,14 @@ public class ListadoCursosPage extends Pagina {
 		driver.findElement(By.cssSelector("a[href='/cursos/" + id + "/editar']")).click();
 		pausa();
 		return new FormularioCursoPage(driver);
+	}
+
+	// Por título, como lo buscaría el usuario: de un curso recién creado no conoce el id
+	public ListadoImparticionesPage pulsarVerImparticiones(String tituloDelCurso) {
+		driver.findElement(By.xpath("//table/tbody/tr[td[2][normalize-space()='" + tituloDelCurso + "']]"
+				+ "//a[normalize-space()='Ver imparticiones']")).click();
+		pausa();
+		return new ListadoImparticionesPage(driver);
 	}
 
 	public ConfirmacionBorrado pulsarBorrar(Long id) {
