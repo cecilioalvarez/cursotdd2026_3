@@ -6,7 +6,7 @@ import org.junit.platform.suite.api.SuiteDisplayName;
 
 /**
  * Agrupa las pruebas de cada capa del concepto curso: negocio, repositorio,
- * servicio y controlador.
+ * servicio, controlador web y servicio REST.
  *
  * Las clases van por nombre porque son package-private en otros paquetes; si
  * se renombra o mueve alguna, hay que actualizarla aquí.
@@ -17,12 +17,13 @@ import org.junit.platform.suite.api.SuiteDisplayName;
  * {@code ./mvnw test -Dtest=CursoTestSuite}, o desde el IDE.
  */
 @Suite
-@SuiteDisplayName("Curso: negocio, repositorio, servicio y controlador")
+@SuiteDisplayName("Curso: negocio, repositorio, servicio, controlador y REST")
 @SelectClasses(names = {
 		"com.arquitecturajava.web1.negocio.CursoTest",
 		"com.arquitecturajava.web1.repositorios.CursoRepositoryTest",
 		"com.arquitecturajava.web1.servicios.CursoServiceTest",
-		"com.arquitecturajava.web1.controladores.CursoControllerTest"
+		"com.arquitecturajava.web1.controladores.CursoControllerTest",
+		"com.arquitecturajava.web1.rest.CursoRestControllerTest"
 })
 class CursoTestSuite {
 }
