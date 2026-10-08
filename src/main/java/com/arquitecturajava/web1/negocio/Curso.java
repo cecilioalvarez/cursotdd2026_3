@@ -2,12 +2,18 @@ package com.arquitecturajava.web1.negocio;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.validation.constraints.NotBlank;
 
 @Entity
@@ -23,6 +29,12 @@ public class Curso {
 	@NotBlank(message = "El autor es obligatorio")
 	private String autor;
 	private double precio;
+
+	// Borrar un curso borra sus imparticiones. Sin orphanRemoval: al editar, el
+	// curso que llega del formulario no trae la lista y no debe vaciarla.
+	@OneToMany(mappedBy = "curso", cascade = CascadeType.REMOVE)
+	@OrderBy("fechaInicio")
+	private List<Imparticion> imparticiones = new ArrayList<>();
 
 	public Curso() {
 	}
@@ -70,6 +82,20 @@ public class Curso {
 
 	public void setPrecio(double precio) {
 		this.precio = precio;
+	}
+
+	public List<Imparticion> getImparticiones() {
+		return Collections.unmodifiableList(imparticiones);
+	}
+
+	public void addImparticion(Imparticion imparticion) {
+		imparticiones.add(imparticion);
+		imparticion.setCurso(this);
+	}
+
+	public void removeImparticion(Imparticion imparticion) {
+		imparticiones.remove(imparticion);
+		imparticion.setCurso(null);
 	}
 
 	public BigDecimal getPrecioConIva() {

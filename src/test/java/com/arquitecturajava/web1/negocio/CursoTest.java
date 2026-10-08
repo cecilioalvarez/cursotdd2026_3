@@ -1,8 +1,10 @@
 package com.arquitecturajava.web1.negocio;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -70,6 +72,42 @@ class CursoTest {
 
 		assertThat(curso).isNotEqualTo(null);
 		assertThat(curso).isNotEqualTo("Java");
+	}
+
+	@Test
+	void cursoNuevoNoTieneImparticiones() {
+		assertThat(new Curso("Java", "Cecilio", 100).getImparticiones()).isEmpty();
+	}
+
+	@Test
+	void addImparticionLaAnadeYLaEnlazaConElCurso() {
+		Curso curso = new Curso("Java", "Cecilio", 100);
+		Imparticion imparticion = new Imparticion("Noviembre", LocalDate.of(2026, 11, 2), LocalDate.of(2026, 11, 6));
+
+		curso.addImparticion(imparticion);
+
+		assertThat(curso.getImparticiones()).containsExactly(imparticion);
+		assertThat(imparticion.getCurso()).isSameAs(curso);
+	}
+
+	@Test
+	void removeImparticionLaQuitaYLaDesenlazaDelCurso() {
+		Curso curso = new Curso("Java", "Cecilio", 100);
+		Imparticion imparticion = new Imparticion("Noviembre", LocalDate.of(2026, 11, 2), LocalDate.of(2026, 11, 6));
+		curso.addImparticion(imparticion);
+
+		curso.removeImparticion(imparticion);
+
+		assertThat(curso.getImparticiones()).isEmpty();
+		assertThat(imparticion.getCurso()).isNull();
+	}
+
+	@Test
+	void imparticionesNoSePuedenModificarDesdeFuera() {
+		Curso curso = new Curso("Java", "Cecilio", 100);
+
+		assertThatThrownBy(() -> curso.getImparticiones().add(new Imparticion()))
+				.isInstanceOf(UnsupportedOperationException.class);
 	}
 
 	@Test

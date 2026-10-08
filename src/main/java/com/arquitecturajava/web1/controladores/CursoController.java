@@ -28,10 +28,11 @@ public class CursoController {
 		this.cursoService = cursoService;
 	}
 
-	// El id viene de la base de datos o de la URL: nunca del formulario
+	// El id viene de la base de datos o de la URL y las imparticiones se
+	// gestionan aparte: ninguno de los dos llega desde el formulario
 	@InitBinder
 	void configurarBinder(WebDataBinder binder) {
-		binder.setDisallowedFields("id");
+		binder.setDisallowedFields("id", "imparticiones*");
 	}
 
 	@GetMapping
