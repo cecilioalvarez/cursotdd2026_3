@@ -1,0 +1,46 @@
+@startuml diagrama-secuencia-alta-curso
+title Alta de un nuevo curso (POST /cursos)
+
+actor "Navegador" as nav
+participant "DispatcherServlet" as ds
+participant "CursoController" as ctrl
+participant "CursoService" as srv
+participant "CursoRepository\n(JpaRepository)" as repo
+database "Base de datos" as bd
+
+nav -> ds : POST /cursos\n(titulo, autor)
+ds -> ctrl : crear(curso, resultado)
+note right of ctrl
+  @PostMapping
+  @Valid @ModelAttribute("curso")
+  (el campo "id" no se enlaza: @InitBinder)
+end note
+
+alt resultado.hasErrors()
+  ctrl --> ds : "cursos/formulario"
+  ds --> nav : 200 OK (formulario con errores)
+else datos válidos
+  ctrl -> srv : guardar(curso)
+  activate srv
+  note right of srv : @Transactional
+  srv -> repo : save(curso)
+  activate repo
+  repo -> bd : INSERT INTO curso ...
+  bd --> repo : id generado
+  repo --> srv : Curso
+  deactivate repo
+  srv --> ctrl : Curso
+  deactivate srv
+  ctrl --> ds : "redirect:/cursos"
+  ds --> nav : 302 Location: /cursos
+  nav -> ds : GET /cursos
+  ds -> ctrl : listar(model)
+  ctrl -> srv : buscarTodos()
+  srv -> repo : findAll()
+  repo --> srv : List<Curso>
+  srv --> ctrl : List<Curso>
+  ctrl --> ds : "cursos/lista"
+  ds --> nav : 200 OK (listado de cursos)
+end
+
+@enduml
